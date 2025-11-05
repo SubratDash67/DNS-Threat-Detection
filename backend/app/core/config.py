@@ -1,21 +1,38 @@
 from pydantic_settings import BaseSettings
 from typing import List, Optional
 from functools import lru_cache
+import os
 
 
 class Settings(BaseSettings):
     APP_NAME: str = "DNS Threat Detection API"
     APP_VERSION: str = "1.0.0"
-    DEBUG: bool = True
-    ENVIRONMENT: str = "development"
+    DEBUG: bool = False
+    ENV: str = "production"
+    ENVIRONMENT: str = "production"
 
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
 
-    DATABASE_URL: str = "sqlite+aiosqlite:///./dns_detection.db"
+    DATABASE_URL: str = "sqlite+aiosqlite:///./dns_security.db"
 
-    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:5173"]
+    # CORS - Allow production frontend URLs
+    ALLOWED_ORIGINS: Optional[str] = None
+
+    @property
+    def BACKEND_CORS_ORIGINS(self) -> List[str]:
+        """Parse CORS origins from environment variable or use defaults"""
+        if self.ALLOWED_ORIGINS:
+            # Split comma-separated origins for production
+            origins = [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",")]
+            return origins
+        # Development defaults
+        return [
+            "http://localhost:3000",
+            "http://localhost:5173",
+            "http://localhost:5174",
+        ]
 
     RATE_LIMIT_PER_MINUTE: int = 60
 
@@ -23,6 +40,9 @@ class Settings(BaseSettings):
 
     MAX_BATCH_SIZE: int = 10000
     BATCH_CHUNK_SIZE: int = 100
+
+    # Render-specific: Use PORT environment variable
+    PORT: int = int(os.getenv("PORT", "8000"))
 
     class Config:
         env_file = ".env"
