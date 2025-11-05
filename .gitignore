@@ -1,0 +1,90 @@
+# ============================================
+# DNS Threat Detection Web App - Root .gitignore
+# ============================================
+
+# Documentation and guides (optional - uncomment if you want to exclude)
+# *.md
+# !README.md
+# IMPLEMENTATION_SUMMARY.md
+# QUICK_START.md
+# API_TESTING_GUIDE.md
+# SAFELIST_README.md
+# deployment_guide.md
+# handover_checklist.md
+# TROUBLESHOOTING.md
+# USER_GUIDE.md
+# WEEK1_STARTER_GUIDE.md
+
+# IDE and Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.test
+.env.production
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+tmp/
+temp/
+
+# Package manager locks (keep one, remove others if needed)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Build outputs
+build/
+dist/
+*.egg-info/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage/
+*.cover
+
+# Test outputs
+.pytest_cache/
+.tox/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/

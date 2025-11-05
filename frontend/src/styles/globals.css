@@ -1,0 +1,30 @@
+@import './theme.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-white antialiased;
+    font-family: var(--font-family);
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-background-paper rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow;
+  }
+
+  .btn-primary {
+    @apply bg-accent-cyan text-primary font-semibold px-6 py-2 rounded-lg hover:bg-opacity-90 transition-all;
+  }
+
+  .btn-danger {
+    @apply bg-accent-red text-white font-semibold px-6 py-2 rounded-lg hover:bg-opacity-90 transition-all;
+  }
+
+  .input-field {
+    @apply w-full bg-background-elevated border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-accent-cyan focus:outline-none transition-colors;
+  }
+}
