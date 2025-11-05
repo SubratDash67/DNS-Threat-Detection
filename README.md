@@ -334,9 +334,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - React & Material-UI
 - PyTorch & LightGBM communities
 
-## 📞 Support
 
-For support, email support@example.com or open an issue in the repository.
 
 ## 🗺️ Roadmap
 
