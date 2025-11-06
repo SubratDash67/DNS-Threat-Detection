@@ -53,7 +53,7 @@ class DetectorService:
             }
 
         result = self._detector.predict(domain)
-        
+
         # Log result for debugging if needed
         logger.debug(f"Prediction result for {domain}: {result}")
 

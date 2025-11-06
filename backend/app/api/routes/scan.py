@@ -154,7 +154,9 @@ async def process_batch_job(
                         await db.commit()
 
                 except Exception as e:
-                    logger.warning(f"Error processing domain {domain} in batch {job_id}: {str(e)}")
+                    logger.warning(
+                        f"Error processing domain {domain} in batch {job_id}: {str(e)}"
+                    )
                     continue
 
             await db.execute(

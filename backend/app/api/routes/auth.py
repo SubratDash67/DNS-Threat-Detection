@@ -75,7 +75,9 @@ async def login(credentials: UserLogin, db: AsyncSession = Depends(get_db)):
     try:
         password_valid = verify_password(credentials.password, user.password)
     except Exception as e:
-        logger.error(f"Password verification error for user {credentials.email}: {str(e)}")
+        logger.error(
+            f"Password verification error for user {credentials.email}: {str(e)}"
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
