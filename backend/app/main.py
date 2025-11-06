@@ -6,27 +6,45 @@ from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 import time
 import os
+import logging
 from app.core.config import get_settings
 from app.core.database import init_db
-from app.api.routes import auth, scan, history, analytics, safelist, models, users, admin
+from app.api.routes import (
+    auth,
+    scan,
+    history,
+    analytics,
+    safelist,
+    models,
+    users,
+    admin,
+)
 from app.services.detector_service import get_detector_service
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 settings = get_settings()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("Starting up DNS Threat Detection API...")
+    logger.info("Starting up DNS Threat Detection API...")
+    logger.info(f"Environment: {settings.ENVIRONMENT}")
 
     await init_db()
-    print("Database initialized")
+    logger.info("Database initialized successfully")
 
     detector = get_detector_service()
-    print("Detector service loaded")
+    logger.info("Detector service loaded successfully")
 
     yield
 
-    print("Shutting down DNS Threat Detection API...")
+    logger.info("Shutting down DNS Threat Detection API...")
 
 
 app = FastAPI(
@@ -66,6 +84,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Unhandled exception: {str(exc)}", exc_info=settings.DEBUG)
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Typography, Box, Grid, Paper } from '@mui/material';
+import { Typography, Box, Grid, Card, CardContent } from '@mui/material';
 import { Activity, Shield, AlertTriangle, Zap, TrendingUp, Users, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/layouts/DashboardLayout';
@@ -175,92 +175,124 @@ const Dashboard: React.FC = () => {
             />
           </Grid>
           <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 3, backgroundColor: 'background.paper' }}>
-              <Typography variant="h6" gutterBottom>
-                Detection Method Statistics
-              </Typography>
-              <Box sx={{ mt: 2 }}>
-                {detectionMethodData.map((method) => (
-                  <Box
-                    key={method.label}
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      mb: 2,
-                      pb: 2,
-                      borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Box
-                        sx={{
-                          width: 12,
-                          height: 12,
-                          borderRadius: '50%',
-                          backgroundColor: method.color,
-                        }}
-                      />
-                      <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
-                        {method.label}
+            <Card 
+              className="card" 
+              sx={{ 
+                height: '100%',
+                background: 'linear-gradient(135deg, rgba(27, 40, 56, 0.9) 0%, rgba(13, 27, 42, 0.95) 100%)',
+              }}
+            >
+              <CardContent>
+                <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
+                  Detection Method Statistics
+                </Typography>
+                <Box sx={{ mt: 2 }}>
+                  {detectionMethodData.map((method, index) => (
+                    <Box
+                      key={method.label}
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        mb: 2,
+                        pb: 2,
+                        borderBottom: index < detectionMethodData.length - 1 ? '1px solid rgba(255, 255, 255, 0.08)' : 'none',
+                        transition: 'all 0.2s',
+                        '&:hover': {
+                          backgroundColor: 'rgba(0, 255, 255, 0.05)',
+                          borderRadius: 1,
+                          px: 1,
+                          mx: -1,
+                        }
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <Box
+                          sx={{
+                            width: 10,
+                            height: 10,
+                            borderRadius: '50%',
+                            backgroundColor: method.color,
+                            boxShadow: `0 0 6px ${method.color}80`,
+                          }}
+                        />
+                        <Typography variant="body2" sx={{ textTransform: 'capitalize', fontWeight: 500 }}>
+                          {method.label}
+                        </Typography>
+                      </Box>
+                      <Typography variant="body2" fontWeight="bold" sx={{ color: method.color }}>
+                        {method.value.toLocaleString()}
                       </Typography>
                     </Box>
-                    <Typography variant="body2" fontWeight="bold">
-                      {method.value.toLocaleString()}
-                    </Typography>
-                  </Box>
-                ))}
-              </Box>
-            </Paper>
+                  ))}
+                </Box>
+              </CardContent>
+            </Card>
           </Grid>
         </Grid>
       )}
 
       {/* Quick Actions */}
       <Box sx={{ mt: 4 }}>
-        <Typography variant="h6" gutterBottom>
+        <Typography variant="h6" gutterBottom sx={{ mb: 2, fontWeight: 600 }}>
           Quick Actions
         </Typography>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6} md={3}>
-            <Paper
+            <Card
               sx={{
                 p: 3,
                 textAlign: 'center',
                 cursor: 'pointer',
                 transition: 'all 0.3s',
+                background: 'linear-gradient(135deg, rgba(27, 40, 56, 0.9) 0%, rgba(13, 27, 42, 0.95) 100%)',
+                border: '1px solid rgba(0, 255, 255, 0.2)',
                 '&:hover': {
                   transform: 'translateY(-4px)',
-                  boxShadow: '0 8px 16px rgba(0, 255, 255, 0.2)',
+                  boxShadow: '0 8px 24px rgba(0, 255, 255, 0.3)',
+                  borderColor: '#00FFFF',
                 },
               }}
               onClick={() => navigate('/scan')}
             >
-              <Search size={32} color="#00FFFF" />
-              <Typography variant="body2" sx={{ mt: 1 }}>
+              <Box sx={{ mb: 1.5 }}>
+                <Search size={36} color="#00FFFF" />
+              </Box>
+              <Typography variant="body1" sx={{ fontWeight: 600 }}>
                 Single Scan
               </Typography>
-            </Paper>
+              <Typography variant="caption" color="text.secondary">
+                Analyze individual domain
+              </Typography>
+            </Card>
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
-            <Paper
+            <Card
               sx={{
                 p: 3,
                 textAlign: 'center',
                 cursor: 'pointer',
                 transition: 'all 0.3s',
+                background: 'linear-gradient(135deg, rgba(27, 40, 56, 0.9) 0%, rgba(13, 27, 42, 0.95) 100%)',
+                border: '1px solid rgba(0, 230, 118, 0.2)',
                 '&:hover': {
                   transform: 'translateY(-4px)',
-                  boxShadow: '0 8px 16px rgba(0, 255, 255, 0.2)',
+                  boxShadow: '0 8px 24px rgba(0, 230, 118, 0.3)',
+                  borderColor: '#00E676',
                 },
               }}
               onClick={() => navigate('/safelist')}
             >
-              <Shield size={32} color="#00E676" />
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                View Safelist
+              <Box sx={{ mb: 1.5 }}>
+                <Shield size={36} color="#00E676" />
+              </Box>
+              <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                Safelist
               </Typography>
-            </Paper>
+              <Typography variant="caption" color="text.secondary">
+                Manage trusted domains
+              </Typography>
+            </Card>
           </Grid>
         </Grid>
       </Box>

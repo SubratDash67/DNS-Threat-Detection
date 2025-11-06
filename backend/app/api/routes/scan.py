@@ -4,6 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.sql import func
 from typing import List
 from datetime import datetime
+import logging
 from app.core.database import get_db
 from app.core.security import get_current_user
 from app.models.user import User
@@ -19,6 +20,7 @@ from app.schemas.scan import (
 from app.services.detector_service import get_detector_service
 
 router = APIRouter(prefix="/api/scan", tags=["Scanning"])
+logger = logging.getLogger(__name__)
 
 
 @router.post("/single", response_model=ScanResponse)
@@ -72,6 +74,7 @@ async def scan_single_domain(
         return response_data
 
     except Exception as e:
+        logger.error(f"Scan failed for domain {request.domain}: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Scan failed: {str(e)}",
@@ -151,7 +154,7 @@ async def process_batch_job(
                         await db.commit()
 
                 except Exception as e:
-                    print(f"Error processing domain {domain}: {str(e)}")
+                    logger.warning(f"Error processing domain {domain} in batch {job_id}: {str(e)}")
                     continue
 
             await db.execute(

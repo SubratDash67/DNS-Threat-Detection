@@ -42,7 +42,12 @@
 
 @layer components {
   .card {
-    @apply bg-background-paper rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow;
+    @apply bg-background-paper rounded-lg shadow-lg transition-all duration-300;
+    padding: 1.5rem;
+  }
+  
+  .card:hover {
+    @apply shadow-xl;
   }
 
   .btn-primary {
@@ -72,15 +77,41 @@
     text-transform: uppercase;
     color: #888;
     border-bottom: 2px solid #2d2d2d;
+    background-color: rgba(0, 0, 0, 0.2);
   }
   
   .scan-table td {
     padding: 1rem 1rem;
-    border-top: 1px solid #2d2d2d;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  
+  .scan-table tbody tr {
+    transition: all 0.2s ease;
   }
   
   .scan-table tbody tr:hover {
     background-color: rgba(0, 255, 255, 0.05);
+    transform: scale(1.001);
+  }
+  
+  /* Scrollbar Styling */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 255, 255, 0.3);
+    border-radius: 5px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 255, 255, 0.5);
   }
 }
 

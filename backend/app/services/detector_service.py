@@ -1,7 +1,11 @@
 from typing import Optional, Dict, Any
 import time
+import logging
 from functools import lru_cache
 from dns_threat_detector import DNS_ThreatDetector
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 
 class DetectorService:
@@ -19,15 +23,15 @@ class DetectorService:
             self._load_models()
 
     def _load_models(self):
-        print("Loading DNS Threat Detector models...")
+        logger.info("Loading DNS Threat Detector models...")
         self._detector = DNS_ThreatDetector(use_safelist=True)
         self._detector.load_models()
-        print("Models loaded successfully")
+        logger.info("Models loaded successfully")
 
         if hasattr(self._detector, "safelist") and self._detector.safelist:
             for domain in self._detector.safelist:
                 self._safelist_cache[domain.lower()] = True
-            print(f"Safelist loaded: {len(self._safelist_cache)} domains")
+            logger.info(f"Safelist loaded: {len(self._safelist_cache)} domains")
 
     def predict_single(self, domain: str, use_safelist: bool = True) -> Dict[str, Any]:
         if not self._detector:
@@ -49,11 +53,9 @@ class DetectorService:
             }
 
         result = self._detector.predict(domain)
-
-        # Debug: Print raw result to see actual keys
-        print(f"DEBUG - Raw detector result for {domain}:")
-        print(f"  Keys: {result.keys()}")
-        print(f"  Full result: {result}")
+        
+        # Log result for debugging if needed
+        logger.debug(f"Prediction result for {domain}: {result}")
 
         return {
             "domain": domain,
@@ -90,11 +92,13 @@ class DetectorService:
         return None
 
     def _extract_features(self, result: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Extract features from prediction result"""
         if "features" in result:
             return result["features"]
         return None
 
     def get_model_info(self) -> Dict[str, Any]:
+        """Get information about loaded models"""
         if not self._detector:
             raise RuntimeError("Detector not initialized")
 
@@ -102,6 +106,7 @@ class DetectorService:
             info = self._detector.get_model_info()
             return info
         except Exception as e:
+            logger.error(f"Error getting model info: {str(e)}")
             return {
                 "version": "1.0.0",
                 "error": str(e),
@@ -113,9 +118,12 @@ class DetectorService:
             }
 
     def reload_models(self):
+        """Reload all models and clear cache"""
+        logger.info("Reloading models...")
         self._detector = None
         self._safelist_cache.clear()
         self._load_models()
+        logger.info("Models reloaded successfully")
 
 
 @lru_cache()

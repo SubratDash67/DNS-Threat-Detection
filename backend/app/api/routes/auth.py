@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 from sqlalchemy.sql import func
 from datetime import timedelta
+import logging
 from app.core.database import get_db
 from app.core.security import (
     verify_password,
@@ -24,6 +25,7 @@ from app.schemas.user import (
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 settings = get_settings()
+logger = logging.getLogger(__name__)
 
 
 @router.post(
@@ -73,7 +75,7 @@ async def login(credentials: UserLogin, db: AsyncSession = Depends(get_db)):
     try:
         password_valid = verify_password(credentials.password, user.password)
     except Exception as e:
-        print(f"Password verification error: {str(e)}")
+        logger.error(f"Password verification error for user {credentials.email}: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",

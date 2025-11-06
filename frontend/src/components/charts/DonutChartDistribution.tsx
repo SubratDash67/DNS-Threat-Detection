@@ -37,43 +37,45 @@ const DonutChartDistribution: React.FC<DonutChartDistributionProps> = ({
 
   return (
     <Card className="card" sx={{ height: '100%' }}>
-      <CardContent>
+      <CardContent sx={{ pb: 2 }}>
         {title && (
-          <Typography variant="h6" gutterBottom textAlign="center">
+          <Typography variant="h6" gutterBottom sx={{ mb: 2, fontWeight: 600 }}>
             {title}
           </Typography>
         )}
-        <Box sx={{ width: '100%', height: 350, position: 'relative' }}>
+        <Box sx={{ width: '100%', height: 320, position: 'relative' }}>
           <ResponsiveContainer>
             <PieChart>
               <Pie
                 data={data}
                 cx="50%"
                 cy="50%"
-                innerRadius={70}
-                outerRadius={110}
+                innerRadius={65}
+                outerRadius={100}
                 fill="#8884d8"
-                paddingAngle={3}
+                paddingAngle={2}
                 dataKey="value"
-                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
-                labelLine={{ stroke: '#00FFFF', strokeWidth: 1 }}
+                label={false}
               >
                 {data.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={entry.color || COLORS[index % COLORS.length]}
-                    stroke="none"
+                    stroke="rgba(0,0,0,0.3)"
+                    strokeWidth={2}
                   />
                 ))}
               </Pie>
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'rgba(27, 40, 56, 0.95)',
+                  backgroundColor: 'rgba(27, 40, 56, 0.98)',
                   border: '1px solid #00FFFF',
                   borderRadius: 8,
                   color: '#fff',
+                  padding: '8px 12px',
                 }}
-                formatter={(value: number) => value.toLocaleString()}
+                formatter={(value: number) => [`${value.toLocaleString()} scans`, '']}
+                labelFormatter={(label) => label}
               />
             </PieChart>
           </ResponsiveContainer>
@@ -88,14 +90,34 @@ const DonutChartDistribution: React.FC<DonutChartDistributionProps> = ({
                 pointerEvents: 'none',
               }}
             >
-              <Typography variant="h3" fontWeight="bold" color="primary" sx={{ fontSize: '2.5rem' }}>
+              <Typography variant="h4" fontWeight="bold" color="primary" sx={{ fontSize: '2rem' }}>
                 {total.toLocaleString()}
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.95rem', mt: 0.5 }}>
+              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.85rem', mt: 0.5, display: 'block' }}>
                 {centerLabel}
               </Typography>
             </Box>
           )}
+        </Box>
+        
+        {/* Legend */}
+        <Box sx={{ mt: 2, display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
+          {data.map((entry, index) => (
+            <Box key={index} display="flex" alignItems="center" gap={0.75}>
+              <Box 
+                sx={{ 
+                  width: 12, 
+                  height: 12, 
+                  bgcolor: entry.color || COLORS[index % COLORS.length], 
+                  borderRadius: 0.5,
+                  boxShadow: `0 0 4px ${entry.color || COLORS[index % COLORS.length]}80`
+                }} 
+              />
+              <Typography variant="caption" sx={{ fontSize: '0.8rem', fontWeight: 500 }}>
+                {entry.label} ({((entry.value / total) * 100).toFixed(1)}%)
+              </Typography>
+            </Box>
+          ))}
         </Box>
       </CardContent>
     </Card>

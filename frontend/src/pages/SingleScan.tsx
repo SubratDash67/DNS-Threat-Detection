@@ -72,69 +72,83 @@ const SingleScan: React.FC = () => {
               <Box>
                 {/* Result Summary Card */}
                 <Card
-                  className="card"
                   sx={{
                     borderLeft: `4px solid ${getResultColor(result.prediction)}`,
                     mb: 3,
+                    background: 'linear-gradient(135deg, rgba(27, 40, 56, 0.9) 0%, rgba(13, 27, 42, 0.95) 100%)',
+                    boxShadow: `0 4px 16px ${getResultColor(result.prediction)}30`,
                   }}
                 >
-                  <CardContent>
-                    <Box display="flex" justifyContent="space-between" alignItems="flex-start">
-                      <Box>
-                        <Typography variant="h5" gutterBottom sx={{ fontFamily: 'monospace' }}>
+                  <CardContent sx={{ p: 3 }}>
+                    <Box display="flex" justifyContent="space-between" alignItems="flex-start" gap={3}>
+                      <Box flex={1}>
+                        <Typography variant="h5" gutterBottom sx={{ fontFamily: 'monospace', fontWeight: 600, wordBreak: 'break-all' }}>
                           {result.domain}
                         </Typography>
-                        <Box display="flex" alignItems="center" gap={1} mb={2}>
+                        <Box display="flex" alignItems="center" gap={1.5} mb={2}>
                           {result.prediction === 'MALICIOUS' ? (
-                            <AlertTriangle size={24} color="#FF1744" />
+                            <AlertTriangle size={28} color="#FF1744" />
                           ) : (
-                            <Shield size={24} color="#00E676" />
+                            <Shield size={28} color="#00E676" />
                           )}
                           <Typography
                             variant="h4"
                             sx={{
                               color: getResultColor(result.prediction),
                               fontWeight: 700,
+                              textShadow: `0 0 10px ${getResultColor(result.prediction)}50`,
                             }}
                           >
                             {result.prediction}
                           </Typography>
                         </Box>
                       </Box>
-                      <ProgressCard
-                        title="Confidence"
-                        value={result.confidence * 100}
-                        color={
-                          result.prediction === 'MALICIOUS'
-                            ? 'error'
-                            : result.prediction === 'BENIGN'
-                            ? 'success'
-                            : 'warning'
-                        }
-                        size={100}
-                      />
+                      <Box sx={{ minWidth: 140 }}>
+                        <ProgressCard
+                          title="Confidence"
+                          value={result.confidence * 100}
+                          color={
+                            result.prediction === 'MALICIOUS'
+                              ? 'error'
+                              : result.prediction === 'BENIGN'
+                              ? 'success'
+                              : 'warning'
+                          }
+                          size={100}
+                        />
+                      </Box>
                     </Box>
 
-                    <Divider sx={{ my: 2 }} />
+                    <Divider sx={{ my: 2.5 }} />
 
-                    <Grid container spacing={2}>
+                    <Grid container spacing={2.5}>
                       <Grid item xs={6}>
-                        <Box>
-                          <Typography variant="caption" color="text.secondary">
+                        <Box sx={{ 
+                          p: 2, 
+                          borderRadius: 2, 
+                          backgroundColor: 'rgba(0, 255, 255, 0.05)',
+                          border: '1px solid rgba(0, 255, 255, 0.2)',
+                        }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', fontWeight: 600, fontSize: '0.7rem', letterSpacing: '0.5px' }}>
                             Detection Method
                           </Typography>
-                          <Typography variant="body1" fontWeight={600}>
+                          <Typography variant="body1" fontWeight={600} sx={{ mt: 0.5, color: '#00FFFF' }}>
                             {formatMethod(result.method)}
                           </Typography>
                         </Box>
                       </Grid>
                       <Grid item xs={6}>
-                        <Box>
-                          <Typography variant="caption" color="text.secondary">
+                        <Box sx={{ 
+                          p: 2, 
+                          borderRadius: 2, 
+                          backgroundColor: 'rgba(255, 179, 0, 0.05)',
+                          border: '1px solid rgba(255, 179, 0, 0.2)',
+                        }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', fontWeight: 600, fontSize: '0.7rem', letterSpacing: '0.5px' }}>
                             Processing Time
                           </Typography>
-                          <Typography variant="body1" fontWeight={600}>
-                            <Clock size={16} style={{ verticalAlign: 'middle', marginRight: 4 }} />
+                          <Typography variant="body1" fontWeight={600} sx={{ mt: 0.5, color: '#FFB300' }}>
+                            <Clock size={16} style={{ verticalAlign: 'middle', marginRight: 6 }} />
                             {result.latency_ms.toFixed(2)}ms
                           </Typography>
                         </Box>

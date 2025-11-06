@@ -103,48 +103,97 @@ const Analytics: React.FC = () => {
 
           {/* Summary Stats */}
           <Grid item xs={12}>
-            <Card className="card">
+            <Card 
+              className="card"
+              sx={{
+                background: 'linear-gradient(135deg, rgba(27, 40, 56, 0.9) 0%, rgba(13, 27, 42, 0.95) 100%)',
+              }}
+            >
               <CardContent>
-                <Typography variant="h6" gutterBottom>
+                <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 600 }}>
                   Summary Statistics
                 </Typography>
                 <Grid container spacing={3}>
                   <Grid item xs={12} sm={6} md={3}>
-                    <Box textAlign="center">
-                      <Typography variant="h4" color="primary">
-                        {stats?.total_scans || 0}
+                    <Box textAlign="center" sx={{ 
+                      p: 2, 
+                      borderRadius: 2, 
+                      backgroundColor: 'rgba(0, 255, 255, 0.05)',
+                      border: '1px solid rgba(0, 255, 255, 0.2)',
+                      transition: 'all 0.3s',
+                      '&:hover': {
+                        backgroundColor: 'rgba(0, 255, 255, 0.1)',
+                        borderColor: '#00FFFF',
+                        transform: 'translateY(-2px)',
+                      }
+                    }}>
+                      <Typography variant="h4" sx={{ color: '#00FFFF', fontWeight: 700 }}>
+                        {stats?.total_scans.toLocaleString() || 0}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontWeight: 500 }}>
                         Total Scans
                       </Typography>
                     </Box>
                   </Grid>
                   <Grid item xs={12} sm={6} md={3}>
-                    <Box textAlign="center">
-                      <Typography variant="h4" color="success.main">
-                        {stats?.unique_domains || 0}
+                    <Box textAlign="center" sx={{ 
+                      p: 2, 
+                      borderRadius: 2, 
+                      backgroundColor: 'rgba(0, 230, 118, 0.05)',
+                      border: '1px solid rgba(0, 230, 118, 0.2)',
+                      transition: 'all 0.3s',
+                      '&:hover': {
+                        backgroundColor: 'rgba(0, 230, 118, 0.1)',
+                        borderColor: '#00E676',
+                        transform: 'translateY(-2px)',
+                      }
+                    }}>
+                      <Typography variant="h4" sx={{ color: '#00E676', fontWeight: 700 }}>
+                        {stats?.unique_domains.toLocaleString() || 0}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontWeight: 500 }}>
                         Unique Domains
                       </Typography>
                     </Box>
                   </Grid>
                   <Grid item xs={12} sm={6} md={3}>
-                    <Box textAlign="center">
-                      <Typography variant="h4" color="error.main">
+                    <Box textAlign="center" sx={{ 
+                      p: 2, 
+                      borderRadius: 2, 
+                      backgroundColor: 'rgba(255, 23, 68, 0.05)',
+                      border: '1px solid rgba(255, 23, 68, 0.2)',
+                      transition: 'all 0.3s',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 23, 68, 0.1)',
+                        borderColor: '#FF1744',
+                        transform: 'translateY(-2px)',
+                      }
+                    }}>
+                      <Typography variant="h4" sx={{ color: '#FF1744', fontWeight: 700 }}>
                         {stats?.threat_rate.toFixed(1) || 0}%
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontWeight: 500 }}>
                         Threat Rate
                       </Typography>
                     </Box>
                   </Grid>
                   <Grid item xs={12} sm={6} md={3}>
-                    <Box textAlign="center">
-                      <Typography variant="h4" color="warning.main">
+                    <Box textAlign="center" sx={{ 
+                      p: 2, 
+                      borderRadius: 2, 
+                      backgroundColor: 'rgba(255, 179, 0, 0.05)',
+                      border: '1px solid rgba(255, 179, 0, 0.2)',
+                      transition: 'all 0.3s',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 179, 0, 0.1)',
+                        borderColor: '#FFB300',
+                        transform: 'translateY(-2px)',
+                      }
+                    }}>
+                      <Typography variant="h4" sx={{ color: '#FFB300', fontWeight: 700 }}>
                         {stats?.avg_processing_time.toFixed(2) || 0}ms
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontWeight: 500 }}>
                         Avg Response Time
                       </Typography>
                     </Box>
