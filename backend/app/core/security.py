@@ -10,7 +10,13 @@ from app.core.config import get_settings
 from app.core.database import get_db
 
 settings = get_settings()
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Configure bcrypt with proper rounds and handling
+pwd_context = CryptContext(
+    schemes=["bcrypt"],
+    deprecated="auto",
+    bcrypt__rounds=12,  # Explicit rounds for consistency
+    bcrypt__ident="2b",  # Use 2b identifier for better compatibility
+)
 security = HTTPBearer()
 
 

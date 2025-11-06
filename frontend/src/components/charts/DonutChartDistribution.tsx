@@ -88,10 +88,10 @@ const DonutChartDistribution: React.FC<DonutChartDistributionProps> = ({
                 pointerEvents: 'none',
               }}
             >
-              <Typography variant="h4" fontWeight="bold" color="primary">
+              <Typography variant="h3" fontWeight="bold" color="primary" sx={{ fontSize: '2.5rem' }}>
                 {total.toLocaleString()}
               </Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.95rem', mt: 0.5 }}>
                 {centerLabel}
               </Typography>
             </Box>

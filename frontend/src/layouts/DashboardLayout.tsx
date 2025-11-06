@@ -22,7 +22,17 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         }}
       >
         <TopNavBar />
-        <Box sx={{ p: 4 }}>{children}</Box>
+        <Box 
+          sx={{ 
+            p: 4,
+            maxWidth: '1400px',
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            width: '100%',
+          }}
+        >
+          {children}
+        </Box>
       </Box>
     </Box>
   );

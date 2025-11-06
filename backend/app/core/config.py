@@ -47,6 +47,8 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        # Allow extra fields for backwards compatibility
+        extra = "ignore"
 
 
 @lru_cache()

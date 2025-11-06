@@ -218,12 +218,6 @@ const BatchScan: React.FC = () => {
                   </Grid>
                 </Grid>
 
-                {currentJob.status === 'completed' && (
-                  <Alert severity="success" sx={{ mt: 2 }} icon={<CheckCircle size={20} />}>
-                    Batch scan completed! Found {currentJob.malicious_count} malicious, {currentJob.suspicious_count} suspicious, and {currentJob.benign_count} benign domains out of {currentJob.total_domains} scanned.
-                  </Alert>
-                )}
-
                 {currentJob.status === 'failed' && (
                   <Alert severity="error" sx={{ mt: 2 }}>
                     Batch scan failed. Please try again.

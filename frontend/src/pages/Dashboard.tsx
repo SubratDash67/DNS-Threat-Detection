@@ -6,24 +6,27 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 import StatCard from '@/components/cards/StatCard';
 import LineChartTrends from '@/components/charts/LineChartTrends';
 import DonutChartDistribution from '@/components/charts/DonutChartDistribution';
-import { analyticsApi } from '@/api/analyticsApi';
+import { analyticsApi, DetectionMethod } from '@/api/analyticsApi';
 import { DashboardStats, TrendData } from '@/api/types';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [trends, setTrends] = useState<TrendData[]>([]);
+  const [detectionMethods, setDetectionMethods] = useState<DetectionMethod[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [dashboardData, trendsData] = await Promise.all([
+        const [dashboardData, trendsData, methodsData] = await Promise.all([
           analyticsApi.getDashboard(),
           analyticsApi.getTrends(7),
+          analyticsApi.getDetectionMethods(),
         ]);
         setStats(dashboardData);
         setTrends(trendsData);
+        setDetectionMethods(methodsData);
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
       } finally {
@@ -52,6 +55,15 @@ const Dashboard: React.FC = () => {
         { label: 'Malicious', value: Math.round((stats.threat_rate / 100) * stats.total_scans), color: '#FF1744' },
       ]
     : [];
+  
+  const detectionMethodData = detectionMethods.map((method, index) => {
+    const colors = ['#00FFFF', '#00E676', '#FFB300', '#FF1744', '#9C27B0', '#2196F3'];
+    return {
+      label: method.method.replace(/_/g, ' '),
+      value: method.count,
+      color: colors[index % colors.length],
+    };
+  });
 
   return (
     <DashboardLayout>
@@ -131,25 +143,78 @@ const Dashboard: React.FC = () => {
 
       {/* Charts */}
       <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
+        <Grid item xs={12} lg={8}>
           <LineChartTrends
             data={trends}
             lines={[
               { key: 'total_scans', name: 'Total Scans', color: '#00FFFF' },
               { key: 'malicious_count', name: 'Malicious', color: '#FF1744' },
+              { key: 'suspicious_count', name: 'Suspicious', color: '#FFB300' },
               { key: 'benign_count', name: 'Benign', color: '#00E676' },
             ]}
             title="Scan Trends (Last 7 Days)"
           />
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} lg={4}>
           <DonutChartDistribution
             data={distributionData}
-            title="Scan Distribution"
-            centerLabel="Total Scans"
+            title="Threat Distribution"
+            centerLabel={`${stats?.total_scans || 0} Total`}
           />
         </Grid>
       </Grid>
+
+      {/* Detection Method Breakdown */}
+      {detectionMethodData.length > 0 && (
+        <Grid container spacing={3} sx={{ mt: 2 }}>
+          <Grid item xs={12} md={6}>
+            <DonutChartDistribution
+              data={detectionMethodData}
+              title="Detection Methods"
+              centerLabel="Methods"
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Paper sx={{ p: 3, backgroundColor: 'background.paper' }}>
+              <Typography variant="h6" gutterBottom>
+                Detection Method Statistics
+              </Typography>
+              <Box sx={{ mt: 2 }}>
+                {detectionMethodData.map((method) => (
+                  <Box
+                    key={method.label}
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      mb: 2,
+                      pb: 2,
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box
+                        sx={{
+                          width: 12,
+                          height: 12,
+                          borderRadius: '50%',
+                          backgroundColor: method.color,
+                        }}
+                      />
+                      <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
+                        {method.label}
+                      </Typography>
+                    </Box>
+                    <Typography variant="body2" fontWeight="bold">
+                      {method.value.toLocaleString()}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            </Paper>
+          </Grid>
+        </Grid>
+      )}
 
       {/* Quick Actions */}
       <Box sx={{ mt: 4 }}>

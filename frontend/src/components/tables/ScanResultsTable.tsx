@@ -13,10 +13,10 @@ import {
   IconButton,
   Tooltip,
 } from '@mui/material';
-import { Eye, Download } from 'lucide-react';
+import { Eye } from 'lucide-react';
 import { ScanResult } from '@/api/types';
 import { formatDate } from '@/utils/formatDate';
-import { getResultColor } from '@/utils/getResultColor';
+import { getResultColor, getResultBgColor } from '@/utils/getResultColor';
 import Badge from '@/components/common/Badge';
 
 interface ScanResultsTableProps {
@@ -44,16 +44,65 @@ const ScanResultsTable: React.FC<ScanResultsTableProps> = ({ data, onRowClick, l
 
   return (
     <TableContainer component={Paper} sx={{ backgroundColor: 'background.paper' }}>
-      <Table>
+      <Table className="scan-table">
         <TableHead>
           <TableRow>
-            <TableCell>Domain</TableCell>
-            <TableCell>Result</TableCell>
-            <TableCell align="right">Confidence</TableCell>
-            <TableCell>Method</TableCell>
-            <TableCell>Latency</TableCell>
-            <TableCell>Scanned At</TableCell>
-            <TableCell align="right">Actions</TableCell>
+            <TableCell sx={{ 
+              padding: '0.75rem 1rem',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              color: '#888',
+              borderBottom: '2px solid #2d2d2d'
+            }}>Domain</TableCell>
+            <TableCell sx={{ 
+              padding: '0.75rem 1rem',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              color: '#888',
+              borderBottom: '2px solid #2d2d2d'
+            }}>Result</TableCell>
+            <TableCell align="right" sx={{ 
+              padding: '0.75rem 1rem',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              color: '#888',
+              borderBottom: '2px solid #2d2d2d'
+            }}>Confidence</TableCell>
+            <TableCell sx={{ 
+              padding: '0.75rem 1rem',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              color: '#888',
+              borderBottom: '2px solid #2d2d2d'
+            }}>Method</TableCell>
+            <TableCell sx={{ 
+              padding: '0.75rem 1rem',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              color: '#888',
+              borderBottom: '2px solid #2d2d2d'
+            }}>Latency</TableCell>
+            <TableCell sx={{ 
+              padding: '0.75rem 1rem',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              color: '#888',
+              borderBottom: '2px solid #2d2d2d'
+            }}>Scanned At</TableCell>
+            <TableCell align="right" sx={{ 
+              padding: '0.75rem 1rem',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              color: '#888',
+              borderBottom: '2px solid #2d2d2d'
+            }}>Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -71,16 +120,14 @@ const ScanResultsTable: React.FC<ScanResultsTableProps> = ({ data, onRowClick, l
                     ? 'rgba(255, 179, 0, 0.05)'
                     : 'rgba(0, 230, 118, 0.03)',
                 '&:hover': {
-                  backgroundColor:
-                    scan.prediction === 'MALICIOUS'
-                      ? 'rgba(255, 23, 68, 0.1)'
-                      : scan.prediction === 'SUSPICIOUS'
-                      ? 'rgba(255, 179, 0, 0.1)'
-                      : 'rgba(0, 230, 118, 0.08)',
+                  backgroundColor: 'rgba(0, 255, 255, 0.05)',
                 },
               }}
             >
-              <TableCell>
+              <TableCell sx={{ 
+                padding: '1rem 1rem',
+                borderTop: '1px solid #2d2d2d'
+              }}>
                 <Typography
                   variant="body2"
                   sx={{
@@ -96,17 +143,23 @@ const ScanResultsTable: React.FC<ScanResultsTableProps> = ({ data, onRowClick, l
                   </Typography>
                 )}
               </TableCell>
-              <TableCell>
+              <TableCell sx={{ 
+                padding: '1rem 1rem',
+                borderTop: '1px solid #2d2d2d'
+              }}>
                 <Badge result={scan.prediction} />
               </TableCell>
-              <TableCell align="right">
+              <TableCell align="right" sx={{ 
+                padding: '1rem 1rem',
+                borderTop: '1px solid #2d2d2d'
+              }}>
                 <Box
                   sx={{
                     display: 'inline-block',
                     px: 1.5,
                     py: 0.5,
                     borderRadius: 1,
-                    backgroundColor: getResultColor(scan.prediction, 0.1),
+                    backgroundColor: getResultBgColor(scan.prediction),
                     color: getResultColor(scan.prediction),
                     fontWeight: 600,
                   }}
@@ -114,7 +167,10 @@ const ScanResultsTable: React.FC<ScanResultsTableProps> = ({ data, onRowClick, l
                   {(scan.confidence * 100).toFixed(1)}%
                 </Box>
               </TableCell>
-              <TableCell>
+              <TableCell sx={{ 
+                padding: '1rem 1rem',
+                borderTop: '1px solid #2d2d2d'
+              }}>
                 <Chip
                   label={scan.method}
                   size="small"
@@ -122,17 +178,26 @@ const ScanResultsTable: React.FC<ScanResultsTableProps> = ({ data, onRowClick, l
                   sx={{ textTransform: 'capitalize' }}
                 />
               </TableCell>
-              <TableCell>
+              <TableCell sx={{ 
+                padding: '1rem 1rem',
+                borderTop: '1px solid #2d2d2d'
+              }}>
                 <Typography variant="body2" color="text.secondary">
                   {scan.latency_ms.toFixed(2)}ms
                 </Typography>
               </TableCell>
-              <TableCell>
+              <TableCell sx={{ 
+                padding: '1rem 1rem',
+                borderTop: '1px solid #2d2d2d'
+              }}>
                 <Typography variant="body2" color="text.secondary">
                   {formatDate(scan.created_at)}
                 </Typography>
               </TableCell>
-              <TableCell align="right">
+              <TableCell align="right" sx={{ 
+                padding: '1rem 1rem',
+                borderTop: '1px solid #2d2d2d'
+              }}>
                 <Tooltip title="View Details">
                   <IconButton
                     size="small"

@@ -130,10 +130,10 @@ Click **"Environment Variables"** and add:
 
 ```bash
 # Production Backend URL (from Render Step 4)
-VITE_API_BASE_URL=https://your-backend-app.onrender.com
+VITE_API_BASE_URL=https://dns-threat-detector-api.onrender.com
 
 # WebSocket URL (same but with wss://)
-VITE_WS_BASE_URL=wss://your-backend-app.onrender.com
+VITE_WS_BASE_URL=wss://dns-threat-detector-api.onrender.com
 ```
 
 > **📝 Note**: Replace `your-backend-app` with your actual Render app name

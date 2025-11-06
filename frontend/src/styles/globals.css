@@ -9,6 +9,35 @@
     @apply bg-background text-white antialiased;
     font-family: var(--font-family);
   }
+  
+  /* Typography Hierarchy */
+  h1 {
+    font-size: 2.25rem; /* ~36px */
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+  }
+  
+  h2 {
+    font-size: 1.5rem; /* ~24px */
+    font-weight: 600;
+    margin-bottom: 1rem;
+    line-height: 1.3;
+  }
+  
+  h3 {
+    font-size: 1.25rem; /* ~20px */
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+  }
+  
+  h4 {
+    font-size: 1.125rem; /* ~18px */
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+  }
 }
 
 @layer components {
@@ -27,4 +56,31 @@
   .input-field {
     @apply w-full bg-background-elevated border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-accent-cyan focus:outline-none transition-colors;
   }
+  
+  /* Table Improvements */
+  .scan-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  
+  .scan-table th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #888;
+    border-bottom: 2px solid #2d2d2d;
+  }
+  
+  .scan-table td {
+    padding: 1rem 1rem;
+    border-top: 1px solid #2d2d2d;
+  }
+  
+  .scan-table tbody tr:hover {
+    background-color: rgba(0, 255, 255, 0.05);
+  }
 }
+

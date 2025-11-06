@@ -1,6 +1,11 @@
 import apiClient from './client';
 import { DashboardStats, TrendData, TLDAnalysis, HeatmapData } from './types';
 
+export interface DetectionMethod {
+  method: string;
+  count: number;
+}
+
 export const analyticsApi = {
   // Get dashboard statistics
   getDashboard: async (): Promise<DashboardStats> => {
@@ -27,4 +32,11 @@ export const analyticsApi = {
     const response = await apiClient.get('/api/analytics/heatmap');
     return response.data;
   },
+  
+  // Get detection methods breakdown
+  getDetectionMethods: async (): Promise<DetectionMethod[]> => {
+    const response = await apiClient.get('/api/analytics/detection-methods');
+    return response.data;
+  },
 };
+

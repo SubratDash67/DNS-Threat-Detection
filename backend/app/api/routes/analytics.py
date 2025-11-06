@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_, case
-from typing import List
+from typing import List, Dict
 from datetime import datetime, timedelta
 from app.core.database import get_db
 from app.core.security import get_current_user
@@ -201,3 +201,20 @@ async def get_activity_heatmap(
     ]
 
     return heatmap_list
+
+
+@router.get("/detection-methods")
+async def get_detection_methods(
+    current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
+) -> List[Dict]:
+    """Get breakdown of detection methods used"""
+    result = await db.execute(
+        select(Scan.method, func.count(Scan.id).label("count"))
+        .where(Scan.user_id == current_user.id)
+        .group_by(Scan.method)
+        .order_by(func.count(Scan.id).desc())
+    )
+
+    rows = result.all()
+
+    return [{"method": row.method, "count": row.count} for row in rows]

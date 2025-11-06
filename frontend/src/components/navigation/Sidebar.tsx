@@ -98,6 +98,8 @@ const Sidebar: React.FC = () => {
                 onClick={() => navigate(item.path)}
                 sx={{
                   borderRadius: 2,
+                  py: 1.2,  // Increased vertical padding
+                  px: 2,    // Increased horizontal padding
                   '&.Mui-selected': {
                     backgroundColor: 'rgba(0, 255, 255, 0.15)',
                     borderLeft: '3px solid #00FFFF',
@@ -110,7 +112,7 @@ const Sidebar: React.FC = () => {
                   },
                 }}
               >
-                <ListItemIcon sx={{ color: isActive ? '#00FFFF' : '#B0BEC5', minWidth: 40 }}>
+                <ListItemIcon sx={{ color: isActive ? '#00FFFF' : '#B0BEC5', minWidth: 44 }}>
                   {item.icon}
                 </ListItemIcon>
                 <ListItemText
