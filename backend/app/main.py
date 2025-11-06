@@ -8,7 +8,7 @@ import time
 import os
 from app.core.config import get_settings
 from app.core.database import init_db
-from app.api.routes import auth, scan, history, analytics, safelist, models, users
+from app.api.routes import auth, scan, history, analytics, safelist, models, users, admin
 from app.services.detector_service import get_detector_service
 
 settings = get_settings()
@@ -82,6 +82,7 @@ app.include_router(analytics.router)
 app.include_router(safelist.router)
 app.include_router(models.router)
 app.include_router(users.router)
+app.include_router(admin.router)
 
 # Mount static files for avatars
 static_dir = os.path.join(os.path.dirname(__file__), "..", "static")
@@ -119,6 +120,7 @@ async def api_info():
             "safelist": "/api/safelist",
             "models": "/api/models",
             "users": "/api/users",
+            "admin": "/api/admin",
         },
     }
 
