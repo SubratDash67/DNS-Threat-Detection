@@ -25,7 +25,12 @@ target_metadata = Base.metadata
 
 
 def get_url():
-    return settings.DATABASE_URL.replace("+aiosqlite", "")
+    """Get database URL and convert async driver to sync for Alembic"""
+    url = settings.DATABASE_URL
+    # Convert async drivers to sync for Alembic migrations
+    url = url.replace("+aiosqlite", "")  # SQLite async -> sync
+    url = url.replace("+asyncpg", "")  # PostgreSQL async -> sync
+    return url
 
 
 def run_migrations_offline() -> None:

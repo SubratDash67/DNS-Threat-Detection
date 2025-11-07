@@ -9,17 +9,31 @@ services:
     region: oregon
     plan: free
     branch: main
-    buildCommand: pip install -r requirements.txt
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt && alembic upgrade head
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
       - key: ENV
         value: production
+      - key: DEBUG
+        value: false
       - key: DATABASE_URL
-        value: sqlite:///./dns_security.db
+        fromDatabase:
+          name: dns-threat-detector-db
+          property: connectionString
       - key: SECRET_KEY
         generateValue: true
       - key: ALLOWED_ORIGINS
         value: https://your-frontend-app.vercel.app
       - key: MAX_BATCH_SIZE
         value: 10000
+      - key: BATCH_CHUNK_SIZE
+        value: 100
+
+databases:
+  # PostgreSQL Database
+  - name: dns-threat-detector-db
+    databaseName: dns_security
+    plan: free
+    region: oregon

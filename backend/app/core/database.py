@@ -6,14 +6,26 @@ from app.core.config import get_settings
 
 settings = get_settings()
 
-engine = create_async_engine(
-    settings.DATABASE_URL,
-    echo=settings.DEBUG,
-    future=True,
-    connect_args=(
-        {"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {}
-    ),
-)
+# Configure engine with appropriate settings for PostgreSQL or SQLite
+if "postgresql" in settings.DATABASE_URL:
+    # PostgreSQL configuration with connection pooling
+    engine = create_async_engine(
+        settings.DATABASE_URL,
+        echo=settings.DEBUG,
+        future=True,
+        pool_size=10,
+        max_overflow=20,
+        pool_pre_ping=True,  # Verify connections before using
+        pool_recycle=3600,  # Recycle connections after 1 hour
+    )
+else:
+    # SQLite configuration (for local development)
+    engine = create_async_engine(
+        settings.DATABASE_URL,
+        echo=settings.DEBUG,
+        future=True,
+        connect_args={"check_same_thread": False},
+    )
 
 AsyncSessionLocal = async_sessionmaker(
     engine,

@@ -1,10 +1,23 @@
 """
 Sample Safelist Data Script
 Populates database with categorized safelist domains
+DEPRECATED: Use populate_safelist_async.py instead for PostgreSQL compatibility
 """
 
-import sqlite3
+import asyncio
+import sys
+import os
+
+# Add the parent directory to the path so we can import app modules
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy import select
+from app.models.safelist import SafelistDomain
+from app.core.config import get_settings
 from datetime import datetime
+
+settings = get_settings()
 
 # Sample safelist domains organized by category and tier
 SAFELIST_DATA = {
@@ -148,53 +161,75 @@ SAFELIST_DATA = {
 }
 
 
-def populate_safelist():
+async def populate_safelist():
     """Populate database with sample safelist data"""
-    conn = sqlite3.connect("dns_detection.db")
-    cursor = conn.cursor()
-
     print("🔐 Populating DNS Safelist Database...")
     print("=" * 60)
+    print(f"Database URL: {settings.DATABASE_URL[:50]}...")
+
+    # Create async engine
+    engine = create_async_engine(settings.DATABASE_URL, echo=False)
+    async_session = async_sessionmaker(
+        engine, class_=AsyncSession, expire_on_commit=False
+    )
 
     total_added = 0
+    total_skipped = 0
 
-    for tier, categories in SAFELIST_DATA.items():
-        print(f"\n📊 {tier.upper()}")
-        print("-" * 60)
+    async with async_session() as session:
+        for tier, categories in SAFELIST_DATA.items():
+            print(f"\n📊 {tier.upper()}")
+            print("-" * 60)
 
-        for category, domains in categories.items():
-            print(f"\n  Category: {category}")
+            for category, domains in categories.items():
+                print(f"\n  Category: {category}")
 
-            for domain in domains:
-                try:
-                    cursor.execute(
-                        """
-                        INSERT INTO safelist_domains (domain, tier, source, notes, added_by, created_at)
-                        VALUES (?, ?, ?, ?, ?, ?)
-                    """,
-                        (
-                            domain,
-                            tier,
-                            "system",
-                            f"Category: {category}",
-                            1,  # System user
-                            datetime.utcnow().isoformat(),
-                        ),
-                    )
-                    print(f"    ✓ {domain}")
-                    total_added += 1
-                except sqlite3.IntegrityError:
-                    print(f"    ⊘ {domain} (already exists)")
+                for domain in domains:
+                    try:
+                        # Check if domain already exists
+                        result = await session.execute(
+                            select(SafelistDomain).where(
+                                SafelistDomain.domain == domain
+                            )
+                        )
+                        existing = result.scalar_one_or_none()
 
-    conn.commit()
-    conn.close()
+                        if existing:
+                            print(f"    ⊘ {domain} (already exists)")
+                            total_skipped += 1
+                            continue
+
+                        # Add new domain
+                        new_domain = SafelistDomain(
+                            domain=domain,
+                            tier=tier,
+                            source="system",
+                            notes=f"Category: {category}",
+                            added_by=None,  # NULL - system domain
+                            created_at=datetime.utcnow(),
+                        )
+                        session.add(new_domain)
+                        await session.flush()  # Flush after each add to catch errors early
+                        print(f"    ✓ {domain}")
+                        total_added += 1
+
+                    except Exception as e:
+                        print(f"    ✗ {domain} - Error: {str(e)}")
+                        await session.rollback()
+                        continue
+
+        # Commit all changes
+        await session.commit()
+
+    await engine.dispose()
 
     print("\n" + "=" * 60)
     print(f"✅ Successfully added {total_added} domains to safelist!")
+    print(f"⊘ Skipped {total_skipped} existing domains")
     print("\nNote: These are sample domains for demonstration.")
     print("In production, verify and customize this list based on your needs.")
     print("=" * 60)
 
 
 if __name__ == "__main__":
-    populate_safelist()
+    asyncio.run(populate_safelist())

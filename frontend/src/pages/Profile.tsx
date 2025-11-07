@@ -20,10 +20,12 @@ import { User, Settings, Activity, Lock } from 'lucide-react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { useAuthStore } from '@/store/authStore';
 import { authApi } from '@/api/authApi';
+import { userApi } from '@/api/userApi';
 import StatCard from '@/components/cards/StatCard';
 import MetricCardGrid from '@/components/cards/MetricCardGrid';
 import { formatDate } from '@/utils/formatDate';
 import ChangePasswordForm from '@/components/forms/ChangePasswordForm';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -47,47 +49,41 @@ const Profile: React.FC = () => {
     full_name: user?.full_name || '',
     email: user?.email || '',
   });
-  const [stats, setStats] = useState({
-    totalScans: 0,
-    maliciousDetected: 0,
-    accuracy: 0,
-    avgLatency: 0,
-  });
+  const [stats, setStats] = useState<{
+    total_scans: number;
+    total_malicious: number;
+    total_benign: number;
+    avg_confidence: number;
+    safelist_contributions: number;
+    join_date: string;
+    last_scan: string | null;
+  } | null>(null);
   const [activityLog, setActivityLog] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Fetch user statistics and activity
-    // TODO: Implement actual API calls
-    setStats({
-      totalScans: 1247,
-      maliciousDetected: 89,
-      accuracy: 99.2,
-      avgLatency: 1.85,
-    });
-
-    setActivityLog([
-      {
-        id: 1,
-        action: 'Login',
-        timestamp: new Date().toISOString(),
-        details: 'Successful login from 192.168.1.1',
-      },
-      {
-        id: 2,
-        action: 'Batch Scan',
-        timestamp: new Date(Date.now() - 3600000).toISOString(),
-        details: 'Processed 150 domains',
-      },
-      {
-        id: 3,
-        action: 'Safelist Update',
-        timestamp: new Date(Date.now() - 7200000).toISOString(),
-        details: 'Added example.com to Tier 3',
-      },
-    ]);
+    fetchUserData();
   }, []);
+
+  const fetchUserData = async () => {
+    try {
+      setLoading(true);
+      // Fetch user statistics
+      const userStats = await userApi.getUserStats();
+      setStats(userStats);
+
+      // Fetch activity log
+      const activity = await userApi.getActivityLog(1, 10);
+      setActivityLog(activity);
+    } catch (err) {
+      console.error('Failed to fetch user data:', err);
+      setError('Failed to load profile data');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSaveProfile = async () => {
     try {
@@ -111,6 +107,16 @@ const Profile: React.FC = () => {
       setTimeout(() => setError(''), 3000);
     }
   };
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+          <LoadingSpinner />
+        </Box>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -179,29 +185,40 @@ const Profile: React.FC = () => {
                 <Typography variant="h6" gutterBottom>
                   Your Statistics
                 </Typography>
-                <MetricCardGrid columns={{ xs: 1, sm: 2 }}>
-                  <StatCard
-                    title="Total Scans"
-                    value={stats.totalScans}
-                    color="primary"
-                    trend={12}
-                  />
-                  <StatCard
-                    title="Threats Detected"
-                    value={stats.maliciousDetected}
-                    color="error"
-                  />
-                  <StatCard
-                    title="Detection Accuracy"
-                    value={`${stats.accuracy}%`}
-                    color="success"
-                  />
-                  <StatCard
-                    title="Avg Response Time"
-                    value={`${stats.avgLatency}ms`}
-                    color="#FFB300"
-                  />
-                </MetricCardGrid>
+                {stats ? (
+                  <MetricCardGrid columns={{ xs: 1, sm: 2 }}>
+                    <StatCard
+                      title="Total Scans"
+                      value={stats.total_scans}
+                      color="primary"
+                    />
+                    <StatCard
+                      title="Malicious Detected"
+                      value={stats.total_malicious}
+                      color="error"
+                    />
+                    <StatCard
+                      title="Benign Domains"
+                      value={stats.total_benign}
+                      color="success"
+                    />
+                    <StatCard
+                      title="Avg Confidence"
+                      value={`${(stats.avg_confidence * 100).toFixed(1)}%`}
+                      color="#FFB300"
+                    />
+                  </MetricCardGrid>
+                ) : (
+                  <Typography variant="body2" color="text.secondary">
+                    No scanning activity yet
+                  </Typography>
+                )}
+                
+                {stats?.last_scan && (
+                  <Typography variant="caption" display="block" sx={{ mt: 2 }}>
+                    Last scan: {formatDate(stats.last_scan)}
+                  </Typography>
+                )}
               </Grid>
             </Grid>
           </TabPanel>

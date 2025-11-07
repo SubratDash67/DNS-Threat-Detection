@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
 
+    # Support both PostgreSQL and SQLite
+    # PostgreSQL format: postgresql+asyncpg://user:password@host:port/database
+    # SQLite format: sqlite+aiosqlite:///./dns_security.db
     DATABASE_URL: str = "sqlite+aiosqlite:///./dns_security.db"
 
     # CORS - Allow production frontend URLs
