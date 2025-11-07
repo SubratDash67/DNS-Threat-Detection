@@ -6,11 +6,22 @@ from app.core.config import get_settings
 
 settings = get_settings()
 
+# Prepare database URL for async engine
+database_url = settings.DATABASE_URL
+
+# Add async driver if using PostgreSQL and it's not already specified
+if "postgresql" in database_url and "+asyncpg" not in database_url:
+    # Replace postgresql:// with postgresql+asyncpg://
+    database_url = database_url.replace("postgresql://", "postgresql+asyncpg://")
+elif "sqlite" in database_url and "+aiosqlite" not in database_url:
+    # Replace sqlite:/// with sqlite+aiosqlite:///
+    database_url = database_url.replace("sqlite:///", "sqlite+aiosqlite:///")
+
 # Configure engine with appropriate settings for PostgreSQL or SQLite
-if "postgresql" in settings.DATABASE_URL:
+if "postgresql" in database_url:
     # PostgreSQL configuration with connection pooling
     engine = create_async_engine(
-        settings.DATABASE_URL,
+        database_url,
         echo=settings.DEBUG,
         future=True,
         pool_size=10,
@@ -21,7 +32,7 @@ if "postgresql" in settings.DATABASE_URL:
 else:
     # SQLite configuration (for local development)
     engine = create_async_engine(
-        settings.DATABASE_URL,
+        database_url,
         echo=settings.DEBUG,
         future=True,
         connect_args={"check_same_thread": False},
