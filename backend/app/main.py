@@ -109,6 +109,7 @@ if os.path.exists(static_dir):
 
 
 @app.get("/")
+@app.head("/")  # Add HEAD method support for Render health checks
 async def root():
     return {
         "name": settings.APP_NAME,
@@ -120,6 +121,7 @@ async def root():
 
 
 @app.get("/health")
+@app.head("/health")  # Add HEAD method support for health checks
 async def health_check():
     return {"status": "healthy", "timestamp": time.time()}
 
