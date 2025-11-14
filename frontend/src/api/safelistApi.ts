@@ -68,4 +68,16 @@ export const safelistApi = {
     const response = await apiClient.get('/api/safelist/stats');
     return response.data;
   },
+
+  // Populate safelist from detector's built-in safelist
+  populateFromDetector: async (): Promise<{
+    added: number;
+    skipped: number;
+    tier1: number;
+    tier2: number;
+    tier3: number;
+  }> => {
+    const response = await apiClient.post('/api/safelist/populate-from-detector');
+    return response.data;
+  },
 };

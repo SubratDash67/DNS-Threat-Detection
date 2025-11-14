@@ -218,19 +218,53 @@ const SingleScan: React.FC = () => {
                           <Typography variant="h6" gutterBottom>
                             Feature Analysis
                           </Typography>
-                          {result.features ? (
-                            <Box
-                              component="pre"
-                              sx={{
-                                p: 2,
-                                bgcolor: 'rgba(0,0,0,0.2)',
-                                borderRadius: 1,
-                                overflow: 'auto',
-                                fontSize: '0.875rem',
-                              }}
-                            >
-                              {JSON.stringify(result.features, null, 2)}
-                            </Box>
+                          {result.features && Object.keys(result.features).length > 0 ? (
+                            <>
+                              <Grid container spacing={2} sx={{ mb: 3 }}>
+                                {Object.entries(result.features).map(([key, value]) => (
+                                  <Grid item xs={6} sm={4} md={3} key={key}>
+                                    <Box
+                                      sx={{
+                                        p: 2,
+                                        bgcolor: 'rgba(0, 255, 255, 0.05)',
+                                        borderRadius: 2,
+                                        border: '1px solid rgba(0, 255, 255, 0.2)',
+                                      }}
+                                    >
+                                      <Typography 
+                                        variant="caption" 
+                                        color="text.secondary" 
+                                        sx={{ 
+                                          textTransform: 'capitalize',
+                                          display: 'block',
+                                          mb: 0.5
+                                        }}
+                                      >
+                                        {key.replace(/_/g, ' ')}
+                                      </Typography>
+                                      <Typography variant="h6" sx={{ color: '#00FFFF' }}>
+                                        {typeof value === 'number' ? value.toFixed(4) : value}
+                                      </Typography>
+                                    </Box>
+                                  </Grid>
+                                ))}
+                              </Grid>
+                              
+                              <Box
+                                component="pre"
+                                sx={{
+                                  p: 2,
+                                  bgcolor: 'rgba(0,0,0,0.3)',
+                                  borderRadius: 1,
+                                  overflow: 'auto',
+                                  fontSize: '0.875rem',
+                                  fontFamily: 'monospace',
+                                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                                }}
+                              >
+                                {JSON.stringify(result.features, null, 2)}
+                              </Box>
+                            </>
                           ) : (
                             <Typography variant="body2" color="text.secondary">
                               Feature data not available for this scan method

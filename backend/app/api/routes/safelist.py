@@ -17,8 +17,11 @@ from app.schemas.safelist import (
     SafelistBulkImport,
     SafelistStats,
 )
+from app.services.detector_service import get_detector_service
+import logging
 
 router = APIRouter(prefix="/api/safelist", tags=["Safelist"])
+logger = logging.getLogger(__name__)
 
 
 @router.get("", response_model=List[SafelistDomainResponse])
@@ -297,4 +300,71 @@ async def get_safelist_stats(
         "tier3_count": tier3_count,
         "recently_added": recently_added,
         "safelist_hit_rate": hit_rate,
+    }
+
+
+@router.post("/populate-from-detector")
+async def populate_from_detector(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Populate database safelist with built-in detector safelist domains"""
+
+    detector = get_detector_service()
+    built_in_safelist = detector.get_built_in_safelist()
+
+    total_added = 0
+    total_skipped = 0
+
+    # Process all domains (not just 100 per tier)
+    for tier, domains in built_in_safelist.items():
+        logger.info(f"Processing {len(domains)} domains for {tier}")
+
+        for idx, domain in enumerate(domains):
+            domain_lower = domain.lower().strip()
+
+            if not domain_lower:
+                continue
+
+            # Check if domain already exists
+            result = await db.execute(
+                select(SafelistDomain).where(SafelistDomain.domain == domain_lower)
+            )
+            existing = result.scalar_one_or_none()
+
+            if existing:
+                total_skipped += 1
+                continue
+
+            # Add domain
+            new_domain = SafelistDomain(
+                domain=domain_lower,
+                tier=tier,
+                added_by=current_user.id,
+                source="system",
+                notes=f"Imported from detector built-in safelist",
+            )
+
+            db.add(new_domain)
+            total_added += 1
+
+            # Commit in batches of 100 for better performance
+            if (idx + 1) % 100 == 0:
+                await db.commit()
+                logger.info(f"{tier}: Added {total_added} domains so far...")
+
+    # Final commit
+    await db.commit()
+
+    logger.info(
+        f"Safelist population complete: {total_added} added, {total_skipped} skipped"
+    )
+
+    return {
+        "message": "Safelist populated from detector",
+        "added": total_added,
+        "skipped": total_skipped,
+        "tier1": len(built_in_safelist.get("tier1", [])),
+        "tier2": len(built_in_safelist.get("tier2", [])),
+        "tier3": len(built_in_safelist.get("tier3", [])),
     }

@@ -106,6 +106,22 @@ const Safelist: React.FC = () => {
     }
   };
 
+  const handlePopulateFromDetector = async () => {
+    try {
+      setLoading(true);
+      const result = await safelistApi.populateFromDetector();
+      showSuccess(
+        `Populated safelist: ${result.added} domains added (${result.tier1} tier1, ${result.tier2} tier2, ${result.tier3} tier3). ${result.skipped} already existed.`
+      );
+      fetchDomains();
+      fetchStats();
+    } catch (error: any) {
+      showError(error.response?.data?.detail || 'Failed to populate safelist');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <DashboardLayout>
       <Box>
@@ -122,6 +138,14 @@ const Safelist: React.FC = () => {
             <Button startIcon={<Plus size={18} />} variant="contained" onClick={() => setAddModalOpen(true)}>
               Add Domain
             </Button>
+            <Button 
+              startIcon={<Upload size={18} />} 
+              variant="outlined" 
+              onClick={handlePopulateFromDetector}
+              disabled={loading}
+            >
+              Populate from Detector
+            </Button>
             <Button startIcon={<Download size={18} />} variant="outlined" onClick={handleExport}>
               Export
             </Button>
@@ -129,12 +153,38 @@ const Safelist: React.FC = () => {
         </Box>
 
         {stats && (
-          <MetricCardGrid columns={{ xs: 1, sm: 2, md: 4, lg: 4 }}>
-            <StatCard title="Total Domains" value={stats.total_domains} color="primary" />
-            <StatCard title="Tier 1 (System)" value={stats.tier1_count} color="success" />
-            <StatCard title="Tier 2 (Corporate)" value={stats.tier2_count} color="#FFB300" />
-            <StatCard title="Tier 3 (User)" value={stats.tier3_count} color="#00FFFF" />
-          </MetricCardGrid>
+          <>
+            <MetricCardGrid columns={{ xs: 1, sm: 2, md: 4, lg: 4 }}>
+              <StatCard title="Total Domains" value={stats.total_domains} color="primary" />
+              <StatCard title="Tier 1 (System)" value={stats.tier1_count} color="success" />
+              <StatCard title="Tier 2 (Corporate)" value={stats.tier2_count} color="#FFB300" />
+              <StatCard title="Tier 3 (User)" value={stats.tier3_count} color="#00FFFF" />
+            </MetricCardGrid>
+            
+            <Box sx={{ mt: 3, p: 3, bgcolor: 'rgba(0, 255, 255, 0.05)', borderRadius: 2, border: '1px solid rgba(0, 255, 255, 0.2)' }}>
+              <Typography variant="h6" gutterBottom>
+                📚 About Safelist
+              </Typography>
+              <Typography variant="body2" color="text.secondary" paragraph>
+                The safelist is a three-tier whitelist system that marks domains as trusted, 
+                allowing instant benign classification without ML model processing.
+              </Typography>
+              <Box component="ul" sx={{ pl: 2, mt: 2 }}>
+                <Typography component="li" variant="body2" sx={{ mb: 1 }}>
+                  <strong>Tier 1 - System:</strong> Pre-loaded major brands and trusted domains from the detector's built-in safelist
+                </Typography>
+                <Typography component="li" variant="body2" sx={{ mb: 1 }}>
+                  <strong>Tier 2 - Corporate:</strong> Organization-wide trusted domains (e.g., company domains, partners)
+                </Typography>
+                <Typography component="li" variant="body2" sx={{ mb: 1 }}>
+                  <strong>Tier 3 - User:</strong> Personal trusted domains added by individual users
+                </Typography>
+              </Box>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                💡 Tip: Use "Populate from Detector" to load {'{'}~143,000{'}'} pre-validated domains from the ML model's safelist.
+              </Typography>
+            </Box>
+          </>
         )}
 
         <Paper sx={{ mt: 3 }}>

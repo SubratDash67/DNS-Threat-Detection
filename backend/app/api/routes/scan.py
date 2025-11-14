@@ -102,19 +102,25 @@ async def process_batch_job(
             await db.commit()
 
             detector = get_detector_service()
+
+            # Use optimized batch prediction
+            logger.info(
+                f"Starting batch prediction for {len(domains)} domains (job {job_id})"
+            )
+            results = detector.predict_batch(domains, use_safelist=use_safelist)
+            logger.info(f"Batch prediction completed for job {job_id}")
+
+            # Get job info for user_id
+            result_obj = await db.execute(select(BatchJob).where(BatchJob.id == job_id))
+            job = result_obj.scalar_one()
+
             malicious_count = 0
             suspicious_count = 0
             benign_count = 0
 
-            for idx, domain in enumerate(domains):
+            # Process all results and save to database
+            for idx, result in enumerate(results):
                 try:
-                    result = detector.predict_single(domain, use_safelist=use_safelist)
-
-                    result_obj = await db.execute(
-                        select(BatchJob).where(BatchJob.id == job_id)
-                    )
-                    job = result_obj.scalar_one()
-
                     scan = Scan(
                         user_id=job.user_id,
                         domain=result["domain"],
@@ -140,6 +146,7 @@ async def process_batch_job(
 
                     db.add(scan)
 
+                    # Update progress every 10 domains
                     if (idx + 1) % 10 == 0:
                         await db.execute(
                             update(BatchJob)
@@ -155,10 +162,11 @@ async def process_batch_job(
 
                 except Exception as e:
                     logger.warning(
-                        f"Error processing domain {domain} in batch {job_id}: {str(e)}"
+                        f"Error saving scan result for domain {result.get('domain', 'unknown')} in batch {job_id}: {str(e)}"
                     )
                     continue
 
+            # Final update with all results
             await db.execute(
                 update(BatchJob)
                 .where(BatchJob.id == job_id)
@@ -172,8 +180,12 @@ async def process_batch_job(
                 )
             )
             await db.commit()
+            logger.info(
+                f"Batch job {job_id} completed: {malicious_count} malicious, {suspicious_count} suspicious, {benign_count} benign"
+            )
 
         except Exception as e:
+            logger.error(f"Batch job {job_id} failed: {str(e)}")
             await db.execute(
                 update(BatchJob)
                 .where(BatchJob.id == job_id)

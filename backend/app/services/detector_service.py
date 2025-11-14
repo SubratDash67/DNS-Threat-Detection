@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 import time
 import logging
 from functools import lru_cache
@@ -53,7 +53,10 @@ class DetectorService:
                 "reason": "Domain found in safelist",
                 "stage": "safelist_check",
                 "latency_ms": latency,
+                "typosquatting_target": None,
+                "edit_distance": None,
                 "safelist_tier": self._get_safelist_tier(domain),
+                "features": None,
             }
 
         # If models aren't loaded, return a default response
@@ -95,6 +98,43 @@ class DetectorService:
             "features": self._extract_features(result),
         }
 
+    def predict_batch(
+        self, domains: List[str], use_safelist: bool = True
+    ) -> List[Dict[str, Any]]:
+        """Batch prediction using the detector's optimized batch method"""
+        if not self._detector:
+            logger.warning("ML models not available - using fallback for batch")
+            return [self.predict_single(domain, use_safelist) for domain in domains]
+
+        try:
+            # Use the detector's optimized batch prediction
+            results = self._detector.predict_batch(domains)
+
+            # Ensure all results have required fields
+            formatted_results = []
+            for result in results:
+                formatted_result = {
+                    "domain": result.get("domain", ""),
+                    "prediction": result.get("prediction", "UNKNOWN"),
+                    "confidence": result.get("confidence", 0.0),
+                    "method": result.get("method", "unknown"),
+                    "reason": result.get("reason", ""),
+                    "stage": result.get("stage", "ml_prediction"),
+                    "latency_ms": result.get("latency_ms", 0.0),
+                    "typosquatting_target": result.get("typosquatting_target"),
+                    "edit_distance": result.get("edit_distance"),
+                    "safelist_tier": result.get("safelist_tier"),
+                    "features": self._extract_features(result),
+                }
+                formatted_results.append(formatted_result)
+
+            return formatted_results
+
+        except Exception as e:
+            logger.error(f"Batch prediction failed: {str(e)}")
+            # Fallback to individual predictions
+            return [self.predict_single(domain, use_safelist) for domain in domains]
+
     def _check_safelist_cache(self, domain: str) -> bool:
         return domain.lower() in self._safelist_cache
 
@@ -117,9 +157,47 @@ class DetectorService:
 
     def _extract_features(self, result: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """Extract features from prediction result"""
-        if "features" in result:
+        if "features" in result and result["features"]:
             return result["features"]
-        return None
+
+        # If features not in result, try to extract from domain
+        if not self._detector:
+            return None
+
+        domain = result.get("domain", "")
+        if not domain:
+            return None
+
+        try:
+            # Import feature extraction from detector
+            from dns_threat_detector.feature_engineering_functions import (
+                extract_fqdn_features,
+                extract_typosquatting_features,
+            )
+
+            fqdn_features = extract_fqdn_features(domain)
+            typo_features = extract_typosquatting_features(domain, [])
+
+            # Combine features into a clean dictionary
+            features = {
+                "length": fqdn_features.get("length", 0),
+                "entropy": round(fqdn_features.get("entropy", 0), 4),
+                "vowel_ratio": round(fqdn_features.get("vowel_ratio", 0), 4),
+                "digit_ratio": round(fqdn_features.get("digit_ratio", 0), 4),
+                "consonant_diversity": round(
+                    typo_features.get("consonant_diversity", 0), 4
+                ),
+                "n_gram_diversity": round(typo_features.get("n_gram_diversity", 0), 4),
+                "longest_consonant_sequence": typo_features.get(
+                    "longest_consonant_sequence", 0
+                ),
+            }
+
+            return features
+
+        except Exception as e:
+            logger.debug(f"Could not extract features for {domain}: {str(e)}")
+            return None
 
     def get_model_info(self) -> Dict[str, Any]:
         """Get information about loaded models"""
@@ -158,6 +236,25 @@ class DetectorService:
         self._safelist_cache.clear()
         self._load_models()
         logger.info("Models reloaded successfully")
+
+    def get_built_in_safelist(self) -> Dict[str, List[str]]:
+        """Get all built-in safelist domains organized by tier"""
+        if not self._detector or not hasattr(self._detector, "safelist_tiers"):
+            return {"tier1": [], "tier2": [], "tier3": []}
+
+        result = {"tier1": [], "tier2": [], "tier3": []}
+        safelist_tiers = self._detector.safelist_tiers
+
+        if isinstance(safelist_tiers, dict):
+            for tier, domains in safelist_tiers.items():
+                tier_key = f"tier{tier}" if isinstance(tier, int) else tier
+                if tier_key in result:
+                    if isinstance(domains, (list, set)):
+                        result[tier_key] = sorted(list(domains))
+                    elif isinstance(domains, dict):
+                        result[tier_key] = sorted(list(domains.keys()))
+
+        return result
 
 
 @lru_cache()

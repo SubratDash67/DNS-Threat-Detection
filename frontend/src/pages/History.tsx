@@ -12,6 +12,7 @@ import {
 import { Download, Trash2, Search } from 'lucide-react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import HistoryTable from '@/components/tables/HistoryTable';
+import ScanDetailModal from '@/components/modals/ScanDetailModal';
 import { historyApi } from '@/api/historyApi';
 import { ScanResult, HistoryFilter } from '@/api/types';
 import { useNotification } from '@/context/NotificationContext';
@@ -19,6 +20,8 @@ import { useNotification } from '@/context/NotificationContext';
 const History: React.FC = () => {
   const [scans, setScans] = useState<ScanResult[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedScan, setSelectedScan] = useState<ScanResult | null>(null);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [filters, setFilters] = useState<HistoryFilter>({
     page: 1,
     page_size: 50,
@@ -66,6 +69,11 @@ const History: React.FC = () => {
     } catch (error) {
       showError('Failed to delete scan');
     }
+  };
+
+  const handleViewDetails = (scan: ScanResult) => {
+    setSelectedScan(scan);
+    setDetailModalOpen(true);
   };
 
   return (
@@ -160,8 +168,15 @@ const History: React.FC = () => {
             loading={loading}
             onDelete={handleDelete}
             onRefresh={fetchHistory}
+            onRowClick={handleViewDetails}
           />
         </Paper>
+
+        <ScanDetailModal
+          open={detailModalOpen}
+          onClose={() => setDetailModalOpen(false)}
+          scan={selectedScan}
+        />
       </Box>
     </DashboardLayout>
   );

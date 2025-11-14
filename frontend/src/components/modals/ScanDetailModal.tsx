@@ -191,16 +191,65 @@ const ScanDetailModal: React.FC<ScanDetailModalProps> = ({ open, onClose, scan }
         </Box>
 
         {/* Feature Analysis */}
-        {scan.features && Object.keys(scan.features).length > 0 && (
+        {scan.features && Object.keys(scan.features).length > 0 ? (
           <>
             <Divider sx={{ my: 2 }} />
             <Box>
               <Typography variant="h6" gutterBottom>
                 Feature Analysis
               </Typography>
-              <RadarChartFeatures data={scan.features} />
+              
+              {/* Feature Grid Display */}
+              <Grid container spacing={2} sx={{ mb: 3 }}>
+                {Object.entries(scan.features).map(([key, value]) => (
+                  <Grid item xs={6} sm={4} md={3} key={key}>
+                    <Box
+                      sx={{
+                        p: 2,
+                        bgcolor: 'background.elevated',
+                        borderRadius: 2,
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                      }}
+                    >
+                      <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'capitalize' }}>
+                        {key.replace(/_/g, ' ')}
+                      </Typography>
+                      <Typography variant="h6" sx={{ color: '#00FFFF', mt: 0.5 }}>
+                        {typeof value === 'number' ? value.toFixed(4) : value}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                ))}
+              </Grid>
+              
+              {/* Radar Chart - Only show if we have numeric features */}
+              {Object.values(scan.features).some(v => typeof v === 'number') && (
+                <RadarChartFeatures 
+                  data={Object.entries(scan.features)
+                    .filter(([_, value]) => typeof value === 'number')
+                    .map(([key, value]) => ({
+                      feature: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                      value: typeof value === 'number' ? value : 0,
+                    }))
+                  } 
+                />
+              )}
             </Box>
           </>
+        ) : (
+          scan.method === 'safelist' || scan.method === 'legitimate_domain_whitelist' ? null : (
+            <>
+              <Divider sx={{ my: 2 }} />
+              <Box>
+                <Typography variant="h6" gutterBottom>
+                  Feature Analysis
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Features not available for this detection method ({scan.method})
+                </Typography>
+              </Box>
+            </>
+          )
         )}
       </DialogContent>
 
