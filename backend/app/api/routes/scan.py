@@ -87,6 +87,12 @@ async def process_batch_job(
     from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
     from sqlalchemy import update
 
+    # Ensure URL uses asyncpg driver for PostgreSQL
+    if db_url.startswith("postgresql://"):
+        db_url = db_url.replace("postgresql://", "postgresql+asyncpg://")
+    elif db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql+asyncpg://")
+
     engine = create_async_engine(db_url)
     SessionLocal = async_sessionmaker(
         engine, class_=AsyncSession, expire_on_commit=False

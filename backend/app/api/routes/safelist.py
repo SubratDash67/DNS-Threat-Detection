@@ -488,30 +488,43 @@ async def populate_from_detector(
             if not domain_lower:
                 continue
 
-            # Check if domain already exists
-            result = await db.execute(
-                select(SafelistDomain).where(SafelistDomain.domain == domain_lower)
-            )
-            existing = result.scalar_one_or_none()
+            try:
+                # Check if domain already exists
+                result = await db.execute(
+                    select(SafelistDomain).where(SafelistDomain.domain == domain_lower)
+                )
+                existing = result.scalar_one_or_none()
 
-            if existing:
+                if existing:
+                    total_skipped += 1
+                    continue
+
+                # Add domain
+                new_domain = SafelistDomain(
+                    domain=domain_lower,
+                    tier=tier,
+                    added_by=current_user.id,
+                    source="system",
+                    notes="Pre-loaded trusted domain",
+                )
+
+                db.add(new_domain)
+                await db.flush()  # Flush to catch unique constraint violations immediately
+                total_added += 1
+
+            except Exception as e:
+                # Handle unique constraint violations gracefully
+                logger.debug(f"Skipping {domain_lower}: {str(e)}")
                 total_skipped += 1
+                await db.rollback()
                 continue
 
-            # Add domain
-            new_domain = SafelistDomain(
-                domain=domain_lower,
-                tier=tier,
-                added_by=current_user.id,
-                source="system",
-                notes="Pre-loaded trusted domain",
-            )
-
-            db.add(new_domain)
-            total_added += 1
-
-    # Commit all at once
-    await db.commit()
+    # Final commit
+    try:
+        await db.commit()
+    except Exception as e:
+        logger.error(f"Error committing safelist: {str(e)}")
+        await db.rollback()
 
     logger.info(
         f"Safelist population complete: {total_added} added, {total_skipped} skipped"
