@@ -52,12 +52,14 @@ const BatchScan: React.FC = () => {
         const status = await scanApi.getBatchStatus(currentJob.id);
         setCurrentJob(status);
 
+        // Fetch results continuously as they become available
+        if (status.processed_domains > 0) {
+          const jobResults = await scanApi.getBatchResults(currentJob.id, 1, 1000);
+          setResults(jobResults);
+        }
+
         if (status.status === 'completed' || status.status === 'failed') {
           setPolling(false);
-          if (status.status === 'completed') {
-            const jobResults = await scanApi.getBatchResults(currentJob.id);
-            setResults(jobResults);
-          }
         }
       } catch (err) {
         console.error('Failed to poll job status:', err);

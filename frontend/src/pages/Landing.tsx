@@ -220,7 +220,7 @@ const Landing: React.FC = () => {
                 fontWeight: 600,
               }}
             >
-              Start Free Trial
+              Start Now
             </Button>
           </Paper>
         </Box>

@@ -171,7 +171,7 @@ const Safelist: React.FC = () => {
               </Typography>
               <Box component="ul" sx={{ pl: 2, mt: 2 }}>
                 <Typography component="li" variant="body2" sx={{ mb: 1 }}>
-                  <strong>Tier 1 - System:</strong> Pre-loaded major brands and trusted domains from the detector's built-in safelist
+                  <strong>Tier 1 - System:</strong> Major brands and trusted domains (Google, Amazon, Microsoft, etc.)
                 </Typography>
                 <Typography component="li" variant="body2" sx={{ mb: 1 }}>
                   <strong>Tier 2 - Corporate:</strong> Organization-wide trusted domains (e.g., company domains, partners)
@@ -181,7 +181,7 @@ const Safelist: React.FC = () => {
                 </Typography>
               </Box>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-                💡 Tip: Use "Populate from Detector" to load {'{'}~143,000{'}'} pre-validated domains from the ML model's safelist.
+                💡 Tip: Use "Populate from Detector" to load 150+ pre-validated major domains into the safelist.
               </Typography>
             </Box>
           </>
